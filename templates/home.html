@@ -1,11 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Styled Page</title>
+    <title>Calculatrice</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Flask with CSS</h1>
-    <p>This page is now styled with an external CSS file!</p>
+    <h1>Calculatrice</h1>
+    <form action="/calculer" method="post">
+        <input type="number" name="valeurA" placeholder="A" required>
+        
+        <select name="operator">
+            <option value="+">+</option>
+            <option value="-">-</option>
+            <option value="*">*</option>
+            <option value="/">/</option>
+        </select>
+        
+        <input type="number" name="valeurB" placeholder="B" required>
+        <input type="submit" value="Calculer">
+    </form>
+    
+    {% if result is not none %}
+        <h2>Résultat : {{ result }}</h2>
+    {% endif %}
 </body>
 </html>
