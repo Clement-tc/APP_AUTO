@@ -2,7 +2,7 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-@app.route('/', methods=["GET"])
+@app.route('/')
 def home():
     return render_template('home.html', result=None)
 
@@ -28,9 +28,7 @@ def calculer():
 
     return render_template('home.html', result=result)
 
-@app.route('/promo', methods=["GET"])
-def ma_get_route():
+@app.route('/promo')
+def promo():
     return "MD5"
 
-if __name__ == '__main__':
-    app.run(debug=True)
