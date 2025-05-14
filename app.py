@@ -66,5 +66,7 @@ def home():
         texte_pdf=texte_pdf[:500]
     )
 
-if __name__ == "__main__":
+
+if __name__ == "__main__" and os.getenv("ENV") == "dev":
     app.run(debug=True)
+
