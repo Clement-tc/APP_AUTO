@@ -1,27 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Calculatrice</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Comparateur PDF</title>
 </head>
 <body>
-    <h1>Calculatrice</h1>
-    <form action="/calculer" method="post">
-        <input type="number" name="valeurA" placeholder="A" required>
-        
-        <select name="operator">
-            <option value="+">+</option>
-            <option value="-">-</option>
-            <option value="*">*</option>
-            <option value="/">/</option>
-        </select>
-        
-        <input type="number" name="valeurB" placeholder="B" required>
-        <input type="submit" value="Calculer">
+    <h1>Comparer un PDF à une phrase de référence</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="pdf_file" accept=".pdf" required>
+        <button type="submit">Analyser</button>
     </form>
-    
-    {% if result is not none %}
-        <h2>Résultat : {{ result }}</h2>
+
+    {% if score is not none %}
+        <h2>Résultat :</h2>
+        <p><strong>Score de similarité :</strong> {{ score }}</p>
+        <p><strong>Texte extrait du PDF (début) :</strong></p>
+        <pre>{{ texte_pdf }}</pre>
     {% endif %}
 </body>
 </html>

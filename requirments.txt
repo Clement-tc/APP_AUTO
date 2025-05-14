@@ -1,5 +1,7 @@
-flask  
+flask
 gunicorn
-sentence-transformers 
+sentence-transformers
 PyMuPDF
-scikit-learn  
+scikit-learn
+torch
+numpy<2.0

@@ -1,36 +1,70 @@
+import os
 from flask import Flask, render_template, request
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+import PyPDF2
 
+# Initialisation
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'uploads'
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-@app.route('/')
+# Modèle
+model = SentenceTransformer("all-MiniLM-L6-v2")
+
+# Chargement des phrases de référence (CV ou fichier de phrases)
+def charger_phrases_reference(fichier="/Users/eliot/Desktop/data_apps_project/analys.txt"):
+    phrases = []
+    with open(fichier, "r", encoding="utf-8") as f:
+        for ligne in f:
+            ligne = ligne.strip()
+            if ligne:
+                # Enlève le label éventuel s'il y en a
+                if "   " in ligne:
+                    ligne = ligne.rsplit("   ", 1)[0]
+                phrases.append(ligne)
+    return phrases
+
+phrases_ref = charger_phrases_reference()
+embeddings_ref = model.encode(phrases_ref)
+
+# Fonction pour lire texte du PDF
+def lire_pdf(path):
+    texte = ""
+    with open(path, "rb") as file:
+        reader = PyPDF2.PdfReader(file)
+        for page in reader.pages:
+            texte += page.extract_text() or ""
+    return texte.strip()
+
+@app.route("/", methods=["GET", "POST"])
 def home():
-    return render_template('home.html', result=None)
+    meilleur_score = None
+    meilleure_phrase = None
+    texte_pdf = ""
 
-@app.route('/calculer', methods=["POST"])
-def calculer():
-    try:
-        A = float(request.form.get("valeurA"))
-        B = float(request.form.get("valeurB"))
-        op = request.form.get("operator")
+    if request.method == "POST":
+        fichier = request.files["pdf_file"]
+        if fichier.filename.endswith(".pdf"):
+            path_pdf = os.path.join(app.config["UPLOAD_FOLDER"], fichier.filename)
+            fichier.save(path_pdf)
 
-        if op == "+":
-            result = A + B
-        elif op == "-":
-            result = A - B
-        elif op == "*":
-            result = A * B
-        elif op == "/":
-            result = A / B if B != 0 else "Division par zéro"
-        else:
-            result = "Opérateur invalide"
-    except Exception as e:
-        result = f"Erreur : {e}"
+            # Lire le texte du PDF
+            texte_pdf = lire_pdf(path_pdf)
+            emb_pdf = model.encode(texte_pdf)
 
-    return render_template('home.html', result=result)
+            # Calculer les similarités
+            scores = cosine_similarity([emb_pdf], embeddings_ref)[0]
+            idx_best = scores.argmax()
+            meilleur_score = scores[idx_best]
+            meilleure_phrase = phrases_ref[idx_best]
 
-@app.route('/promo')
-def promo():
-    return "MD5 - serveur en développement"
+    return render_template(
+        "home.html",
+        score=meilleur_score,
+        best_phrase=meilleure_phrase,
+        texte_pdf=texte_pdf[:500]
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)
