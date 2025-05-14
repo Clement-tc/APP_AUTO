@@ -13,7 +13,7 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
 # Chargement des phrases de référence (CV ou fichier de phrases)
-def charger_phrases_reference(fichier="/Users/eliot/Desktop/data_apps_project/analys.txt"):
+def charger_phrases_reference(fichier="analys.txt"):
     phrases = []
     with open(fichier, "r", encoding="utf-8") as f:
         for ligne in f:
