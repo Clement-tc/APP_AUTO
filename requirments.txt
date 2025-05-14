@@ -2,3 +2,4 @@ flask
 gunicorn
 sentence-transformers 
 PyMuPDF
+scikit-learn  
