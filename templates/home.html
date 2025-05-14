@@ -1,20 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>Comparateur PDF</title>
+    <meta charset="UTF-8">
+    <title>Offre</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <h1>Comparer un PDF à une phrase de référence</h1>
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="pdf_file" accept=".pdf" required>
-        <button type="submit">Analyser</button>
-    </form>
-
-    {% if score is not none %}
-        <h2>Résultat :</h2>
-        <p><strong>Score de similarité :</strong> {{ score }}</p>
-        <p><strong>Texte extrait du PDF (début) :</strong></p>
-        <pre>{{ texte_pdf }}</pre>
-    {% endif %}
+<body class="bg-light">
+    <div class="container mt-5 text-center">
+        <h1 class="mb-4">Analyse de CV</h1>
+        <div class="card shadow p-4">
+            <h3 class="card-title text-primary">Offre à analyser : {{ description }}</h3>
+            
+            <a href="/analyze/" class="btn btn-success mt-3">Analyser les CV</a>
+        </div>
+    </div>
 </body>
 </html>

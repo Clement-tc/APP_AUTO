@@ -1,25 +1,25 @@
 import os
-from flask import Flask, render_template, request
+import pandas as pd
+from flask import Flask, render_template
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
-import PyPDF2
 
-# Initialisation
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Modèle
+# 🔹 Chargement du modèle
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
-# Chargement des phrases de référence (CV ou fichier de phrases)
-def charger_phrases_reference(fichier="/Users/eliot/Desktop/data_apps_project/analys.txt"):
+# 🔹 Chargement des phrases de référence
+def charger_phrases_reference(fichier=None):
+    if fichier is None:
+        fichier = os.path.join(app.root_path, "analys.txt")
     phrases = []
     with open(fichier, "r", encoding="utf-8") as f:
         for ligne in f:
             ligne = ligne.strip()
             if ligne:
-                # Enlève le label éventuel s'il y en a
                 if "   " in ligne:
                     ligne = ligne.rsplit("   ", 1)[0]
                 phrases.append(ligne)
@@ -28,43 +28,40 @@ def charger_phrases_reference(fichier="/Users/eliot/Desktop/data_apps_project/an
 phrases_ref = charger_phrases_reference()
 embeddings_ref = model.encode(phrases_ref)
 
-# Fonction pour lire texte du PDF
-def lire_pdf(path):
-    texte = ""
-    with open(path, "rb") as file:
-        reader = PyPDF2.PdfReader(file)
-        for page in reader.pages:
-            texte += page.extract_text() or ""
-    return texte.strip()
-
-@app.route("/", methods=["GET", "POST"])
+# 🔹 Route principale : affiche une offre
+@app.route("/")
 def home():
-    meilleur_score = None
-    meilleure_phrase = None
-    texte_pdf = ""
+    try:
+        with open(os.path.join(app.root_path, "analys.txt"), "r", encoding="utf-8") as f:
+            premiere_phrase = f.readline().strip()
+    except Exception:
+        premiere_phrase = "Pas de description disponible."
 
-    if request.method == "POST":
-        fichier = request.files["pdf_file"]
-        if fichier.filename.endswith(".pdf"):
-            path_pdf = os.path.join(app.config["UPLOAD_FOLDER"], fichier.filename)
-            fichier.save(path_pdf)
+    return render_template("home.html", description=premiere_phrase)
 
-            # Lire le texte du PDF
-            texte_pdf = lire_pdf(path_pdf)
-            emb_pdf = model.encode(texte_pdf)
+# 🔹 Route analyse
+@app.route("/analyze/")
+def analyze():
+    try:
+        with open(os.path.join(app.root_path, "analys.txt"), "r", encoding="utf-8") as f:
+            phrase_ref = f.readline().strip()
+    except Exception:
+        phrase_ref = ""
 
-            # Calculer les similarités
-            scores = cosine_similarity([emb_pdf], embeddings_ref)[0]
-            idx_best = scores.argmax()
-            meilleur_score = scores[idx_best]
-            meilleure_phrase = phrases_ref[idx_best]
+    try:
+        df = pd.read_csv("resume_data.csv").sample(n=10)
+        df = df.dropna(subset=["career_objective"])  # 🔸 Supprime les lignes sans texte
+        textes = df["career_objective"].astype(str).tolist()
+        emb_obj = model.encode(textes)
+        emb_ref = model.encode([phrase_ref])
+        scores = cosine_similarity(emb_obj, emb_ref).flatten()
+        df["similarity"] = scores
+        df = df.sort_values("similarity", ascending=False)
+        resultats = df[["career_objective", "similarity"]].values.tolist()
+    except Exception as e:
+        resultats = []
 
-    return render_template(
-        "home.html",
-        score=meilleur_score,
-        best_phrase=meilleure_phrase,
-        texte_pdf=texte_pdf[:500]
-    )
+    return render_template("analyze.html", best_phrase=phrase_ref, table=resultats)
 
 if __name__ == "__main__":
     app.run(debug=True)
