@@ -30,5 +30,7 @@ def calculer():
 
 @app.route('/promo')
 def promo():
-    return "MD5"
+    return "MD5 - serveur en développement"
 
+if __name__ == "__main__":
+    app.run(debug=True)
