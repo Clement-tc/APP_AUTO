@@ -1,25 +1,38 @@
+Data scientist
 Descriptif du poste
-En tant que Data Scientist (F/H), vous aurez pour premier rôle la réalisation de projets de Data Science pour la direction, autour des Use Cases de type Document Processing / Understanding, afin d'automatiser des processus Métier. Pour y parvenir il sera nécessaire de collaborer avec les ML Engineer / Data Engineer de l'équipe pour industrialiser les projets en Production, ainsi que de contribuer aux outils de monitoring nécessaires pour suivre la performance des IA livrées.
+Envie de changement, d’une nouvelle opportunité professionnelle et d’un cadre où il fait bon vivre ? Alors c’est bon, tu peux continuer à lire, c’est chez SII que ça se passe !
 
-Vos missions seront les suivantes :Opérationnelles :· Participer à la compréhension des besoins métiers et développer une proposition de valeur en accompagnant les Product Owners (faisabilité, pré-requis, timing)
+ Alors, quel sera ton rôle ?
+En tant que Data Engineer (F/H), tes missions seront les suivantes :
 
-· Être garant de la qualité scientifique et de code des algorithmes développés, de la phase de prototype jusqu’à l’industrialisation et tout au long du run en production (retrain, drift detection …)
+Préparation des données
+Analyser les modèles
+Concevoir des algorithmes
+Programmation back-end
+Interprétation et présentation des résultats
+Mise en production des solutions
+Ton profil : 
 
-· Structurer dès le démarrage les projets et le code dans la perspective d’une industrialisation de la solution IA et d’une intégration fluide dans le process métier : une IA réussie est une IA utilisée
+Dans l’idéal, tu es titulaire d’un Bac+5 en informatique, statistique ou mathématiques et tu as minimum 3 ans d’expérience post diplôme sur des sujets de Data, notamment des compétences Scala/Spark.
 
-· Participer et animer au niveau de l'application des pratiques MLOPS, notamment au travers des code reviews, du peer programming ou des sessions de partage
+En fonction de tes compétences et aspirations, tu peux être référent technique de notre équipe ou rejoindre notre équipe d’experts dont le rôle est multiple.Et si tu te lasses de ta mission ? Nous serons à ton écoute et te trouverons un nouveau projet.Envie d’évoluer ? Nous t’accompagnons dans ton projet d’évolution en te trouvant une mission et des formations cohérentes vis-à-vis de celui-ci.
 
-· Aider à organiser et à orienter le travail dans la bonne direction, en complément du Product Owner en questionnant le why et en cherchant une équilibre bénéfice / coût
+Notre ADN
 
-· Avoir une démarche IA responsable
+SII Atlantique, c’est :
 
-Transverses :· Participer à la mise en place et au maintien de bonnes pratiques de code et de modélisation au sein de l’équipe, dans une logique MLOps
+250 ingénieurs qui partagent un même état d’esprit #collectif, #partage, #convivialité
+Des clients Grands Comptes, PME ou ETI, qui t’apporteront des compétences techniques, fonctionnelles et méthodologiques
+Un suivi régulier et personnalisé réalisé par tes référents 
+Des formations régulières, adaptées à tes envies et tes souhaits d’évolution
+Des Speak Ups, partage de bonnes pratiques et la possibilité de t’investir dans l’agence
+Des moments de fun et de partage, comme retrouver tes collègues autour d’un déjeuner ou petit-déj’, des AfterWorks, soirées d’agence, événements sportifs… et une vraie intégration à ton arrivée !
+Des avantages : prime de participation, tickets restau, mutuelle, CSE, chèques vacances et de fin d’année, 10 jours de RTT, un accord de télétravail, indemnités km vélo ou participation à hauteur de 75% à ton abonnement aux transports en commun, crèche…
+Du green : une démarche Employeur pro-vélo avec un soutien concret des vélotafeurs et la pratique du mécénat de compétences, le soutien financier pour des acteurs du territoire et des collectes solidaires !
+Le Groupe SII est au cœur de l’innovation au service de grands comptes dans des secteurs d’ingénierie variés. Pour la 8ème année consécutive, SII France a obtenu le label Great Place To Work® et se classe 2ᵉ au Palmarès Best Workplaces 2025 (catégorie +2500 salariés). Nous en sommes très fiers car nous sommes la 1ère ESN de ce classement à obtenir cette reconnaissance par ses salariés !Ce succès est le reflet de notre culture basée sur notre volonté de proposer à tous nos salariés un cadre de travail épanouissant pour le développement de leurs compétences et carrières. Rejoindre SII, c’est s’engager dans une aventure collective : Let’s Tech Together ! Cette promesse représente notre ambition commune : construire un futur technologique ensemble, dans un cadre où l'expérimentation et l'autonomie sont encouragées, où les innovations sont au cœur de nos actions, et où chaque collaborateur trouve épanouissement professionnel et responsabilisation au sein d'un collectif enthousiaste et inclusif. En tant que société à fortes valeurs humaines, nous sommes signataires de la Charte de la Diversité, de la Charte d'engagement LGBT+ avec l'Association l'autre Cercle et sommes une entreprise Handi-accueillante.Let’s Tech Together incarne ce que nous sommes et ce que nous aspirons à être : une entreprise dynamique, innovante et humaine. 
 
-· Réaliser une veille active sur les dernières avancées dans les domaines de la data science & l’IA, mais aussi sur les acteurs du marché afin d’évaluer leur intérêt potentiel
+Ces valeurs te parlent ? Alors Let's Tech Together !
 
-· Adopter une posture de conseil envers les différentes directions, afin de les accompagner dans l’usage de la data et de l’IA pour répondre à leurs problématiques
+Caroline, Pauline ou Tassadit seront ravies de te rencontrer et de t’en dire plus.
 
-· Collaborer avec le management afin de structurer et planifier la roadmap de l’équipe ainsi que le staffing des projets
-
-· Contribuer activement au rayonnement des travaux de l’équipe via des présentations didactiques ou des formations, pour un public large comme d’experts
-
+Et qui de mieux qu'un collaborateur pour en parler ? C'est ici que ça se passe !Tu peux également nous suivre sur les réseaux sociaux : LinkedIn, @Groupe SII ou Instagram.  
