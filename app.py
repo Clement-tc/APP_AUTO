@@ -67,3 +67,7 @@ def home():
     )
 
 
+if __name__ == "__main__" and os.getenv("ENV") == "dev":
+    app.run(debug=True)
+
+
