@@ -63,5 +63,4 @@ def analyze():
 
     return render_template("analyze.html", best_phrase=phrase_ref, table=resultats)
 
-if __name__ == "__main__":
-    app.run(debug=True)
+
