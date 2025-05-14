@@ -5,3 +5,4 @@ PyMuPDF
 scikit-learn
 torch
 numpy<2.0
+boto3
