@@ -1,1 +1,36 @@
 
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Résultats d'analyse</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center">Résultats d'analyse</h1>
+        <div class="alert alert-info text-center">
+            Offre analysée : <strong>{{ best_phrase }}</strong>
+        </div>
+        <table class="table table-striped table-hover mt-4">
+            <thead class="table-dark">
+                <tr>
+                    <th>Objectif de carrière</th>
+                    <th>Score de similarité</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ligne in table %}
+                    <tr>
+                        <td>{{ ligne[0] }}</td>
+                        <td>{{ '{:.3f}'.format(ligne[1]) }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="text-center mt-4">
+            <a href="/" class="btn btn-outline-primary">← Retour à l'offre</a>
+        </div>
+    </div>
+</body>
+</html>
