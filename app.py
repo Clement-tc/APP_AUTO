@@ -66,6 +66,9 @@ def home():
         texte_pdf=texte_pdf[:500]
     )
 
+@app.route("/analyse")
+def nav_to_analyse():
+    return render_template("analyse.html")
 
 if __name__ == "__main__" and os.getenv("ENV") == "dev":
     app.run(debug=True)

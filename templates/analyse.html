@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Find</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <header>
+      <h1 class="blue">Quick Find</h1>
+    </header>
+    <main>
+        <h1>Comparer un PDF à une phrase de référence</h1>
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="pdf_file" accept=".pdf" required>
+            <button type="submit">Analyser</button>
+        </form>
+
+        
+    {% if score is not none %}
+        <h2 class="blue">Résultat :</h2>
+        <p><strong>Score de similarité :</strong> {{ score }}</p>
+    {% endif %}
+    </main>
+</body>
+</html>

@@ -1,20 +1,34 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Comparateur PDF</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Find</title>
+    <link rel="stylesheet" href="../static/style.css">
 </head>
 <body>
-    <h1>Comparer un PDF à une phrase de référence</h1>
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="pdf_file" accept=".pdf" required>
-        <button type="submit">Analyser</button>
-    </form>
-
-    {% if score is not none %}
-        <h2>Résultat :</h2>
-        <p><strong>Score de similarité :</strong> {{ score }}</p>
-        <p><strong>Texte extrait du PDF (début) :</strong></p>
-        <pre>{{ texte_pdf }}</pre>
-    {% endif %}
+    <header>
+      <h1 class="blue">Quick Find</h1>
+    </header>
+    <main>
+        <div class="offer-selection">
+            <div class="offer-selection-header">
+                <h2 class="blue">Select an offer</h2>
+                <div class="separator"></div>
+            </div>
+            <section id="offer-section-card">
+                <a class="offer-card" href="{{ url_for('nav_to_analyse') }}">
+                    <p class="offer-title blue">Data analyst</p>
+                    <p class="offer-date dark-grey">6 juin 2025</p>
+                    <div class="offer-card-description">
+                        <p class="offer-description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum aliquid expedita ratione, molestias doloribus perspiciatis assumenda quibusdam sit voluptate explicabo dicta quia dolores quasi reprehenderit. Id sequi ullam dicta recusandae.</p>
+                    </div>
+                    <div class="offer-card-div-button">
+                        <div class='offer-card-button'></div>
+                    </div>
+                </a>
+            </section>
+        </div>
+    </main>
 </body>
 </html>
