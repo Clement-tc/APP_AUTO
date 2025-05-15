@@ -12,7 +12,7 @@ import io  # Ajout de l'importation du module io
 import base64
 import numpy as np
 import fitz
-
+from datetime import datetime
 # Initialisation de Flask et de la base de données
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///offres_emploi.db'
@@ -135,7 +135,26 @@ def login():
             else:
                 return redirect(url_for('postuler'))  # Rediriger vers la page de postulation pour les candidats
     return render_template("login.html")
+@app.route("/create", methods=["GET", "POST"])
+@login_required
+def create_offre():
+    if current_user.role != 'recruteur':
+        return redirect(url_for('home'))  # Si l'utilisateur n'est pas recruteur, redirige vers l'accueil
+    
+    if request.method == "POST":
+        titre = request.form['titre']
+        description = request.form['description']
+        localisation = request.form['localisation']
+        competences = request.form['competences']
+        date_publication =  datetime.today().strftime('%Y-%m-%d')
 
+        # Ajouter l'offre à la base de données
+        offre = OffreEmploi(titre=titre, description=description, localisation=localisation, competences=competences, date_publication=date_publication)
+        db.session.add(offre)
+        db.session.commit()
+        return redirect(url_for('home'))
+
+    return render_template("create_offre.html")
 # Route pour la déconnexion
 @app.route("/logout")
 @login_required
