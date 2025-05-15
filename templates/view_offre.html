@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ offre.titre }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h1 class="mb-4">{{ offre.titre }}</h1>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Localisation : {{ offre.localisation }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">Compétences requises :</h6>
+                <p class="card-text">{{ offre.competences }}</p>
+                <h6 class="card-subtitle mb-2 text-muted">Description de l'offre :</h6>
+                <p class="card-text">{{ offre.description }}</p>
+            </div>
+        </div>
+
+        <a href="{{ url_for('home') }}" class="btn btn-outline-primary">Retour à l'accueil</a>
+    </div>
+</body>
+</html>

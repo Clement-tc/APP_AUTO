@@ -53,7 +53,6 @@ class OffreEmploi(db.Model):
 # Modèle pour les candidats qui postulent
 class Candidat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nom = db.Column(db.String(100), nullable=False)
     cv = db.Column(db.String(3000), nullable=False)  # Le chemin vers le fichier CV
     offre_id = db.Column(db.Integer, db.ForeignKey('offre_emploi.id'), nullable=False)
     offre = db.relationship('OffreEmploi', backref=db.backref('candidats', lazy=True))
@@ -61,7 +60,7 @@ class Candidat(db.Model):
 
 # Fonction pour extraire et concaténer 'skills' et 'career_objective' des CV
 def get_cv_text(df):
-    return df['skills'] + " " + str(df['career_objective'])
+    return str(df['skills']) + " " + str(df['career_objective'])
 
 # Créer la base de données si elle n'existe pas
 with app.app_context():
@@ -111,7 +110,7 @@ with app.app_context():
                     cv_text = get_cv_text(row)  # Concaténer 'skills' et 'career_objective'
                     
                     # Ajouter un candidat avec un score similaire
-                    candidat = Candidat(nom=str(_), cv=cv_text, offre_id=offre.id, date_postulation="2025-05-06")
+                    candidat = Candidat(cv=cv_text, offre_id=offre.id, date_postulation="2025-05-06")
                     db.session.add(candidat)
                     db.session.commit()  # Commiter chaque candidat
 
@@ -172,16 +171,15 @@ def postuler(offre_id):
     offre = OffreEmploi.query.get_or_404(offre_id)
 
     if request.method == "POST":
-        nom = request.form['nom']
         cv_file = request.files['cv']
 
         # Sauvegarder le fichier CV
         cv_path = os.path.join(app.config['UPLOAD_FOLDER'], cv_file.filename)
         cv_file.save(cv_path)
         cv_text = extract_text_from_pdf(cv_path)
-
+        date_postulation =  datetime.today().strftime('%Y-%m-%d')
         # Ajouter le candidat à la base de données
-        candidat = Candidat(nom=nom, cv=cv_text, offre_id=offre_id, date_postulation="2025-05-06")
+        candidat = Candidat(cv=cv_text, offre_id=offre_id, date_postulation=date_postulation)
         db.session.add(candidat)
         db.session.commit()
 
@@ -223,7 +221,7 @@ def analyze(offre_id):
         emb_ref = model.encode([offre.description])
         score = cosine_similarity(emb_obj, emb_ref).flatten()[0]
         
-        resultats.append((candidat.nom, score))  # Ajouter le résultat à la liste
+        resultats.append((candidat.id, score))  # Ajouter le résultat à la liste
     # Trier les résultats par similarité
     resultats = sorted(resultats, key=lambda x: x[1], reverse=True)
 
@@ -270,3 +268,21 @@ def signup():
     return render_template("signup.html")
 
 
+# Route pour afficher les détails d'une offre
+@app.route("/offre/<int:offre_id>")
+def view_offre(offre_id):
+    offre = OffreEmploi.query.get_or_404(offre_id)  # Récupérer l'offre par ID
+    return render_template("view_offre.html", offre=offre)
+
+@app.route("/mes-candidatures")
+@login_required
+def mes_candidatures():
+    if current_user.role != "candidat":
+        return redirect(url_for("home"))
+
+    candidatures = Candidat.query.filter_by(id=current_user.id).all()
+    return render_template("mes_candidatures.html", candidatures=candidatures)
+
+"""
+if __name__ == "__main__":
+    app.run(debug=True)"""

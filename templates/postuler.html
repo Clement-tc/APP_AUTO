@@ -10,10 +10,6 @@
         <h1 class="mb-4 text-center">Postuler à l'offre : {{ offre.titre }}</h1>
         <form action="/postuler/{{ offre.id }}" method="POST" enctype="multipart/form-data">
             <div class="mb-3">
-                <label for="nom" class="form-label">Nom</label>
-                <input type="text" class="form-control" id="nom" name="nom" required>
-            </div>
-            <div class="mb-3">
                 <label for="cv" class="form-label">CV</label>
                 <input type="file" class="form-control" id="cv" name="cv" required>
             </div>
