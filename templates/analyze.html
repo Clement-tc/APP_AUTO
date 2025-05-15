@@ -2,36 +2,88 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Résultats d'Analyse</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Analyse des Candidatures</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- DataTables + Chart.js -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-light">
+
     <div class="container mt-5">
-        <h1 class="mb-4 text-center">Analyse des candidatures pour l'offre : {{ offre.titre }}</h1>
+        <h1 class="mb-4 text-center">Analyse des Candidatures</h1>
 
-        <p>Moyenne des scores de similarité : {{ moyenne_score }}</p>
-
-        <div class="text-center">
-            <img src="data:image/png;base64,{{ img_base64 }}" alt="Graphique des candidatures" />
+        <!-- 📊 Score moyen -->
+        <div class="alert alert-info text-center">
+            Score moyen de similarité : <strong>{{ '%.2f'|format(moyenne_score) }}</strong>
         </div>
 
-        <table class="table table-striped">
-            <thead>
+        <!-- 🧮 Tableau interactif -->
+        <table id="table_resultats" class="table table-striped table-bordered">
+            <thead class="table-primary">
                 <tr>
-                    <th>Candidat</th>
-                    <th>Score de Similarité</th>
+                    <th>id</th>
+                    <th>Score de similarité</th>
                 </tr>
             </thead>
             <tbody>
-                {% for candidat, score in table %}
-                    <tr>
-                        <td>{{ candidat }}</td>
-                        <td>{{ score }}</td>
-                    </tr>
+                {% for nom, score in table %}
+                <tr>
+                    <td>{{ nom }}</td>
+                    <td>{{ '%.2f'|format(score) }}</td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
-        <a href="/" class="btn btn-outline-primary">Retour à l'accueil</a>
+
+        <!-- 📈 Graphique -->
+        <h3 class="mt-5">Distribution des Scores</h3>
+        <canvas id="scoreChart" height="100"></canvas>
     </div>
+
+    <!-- JS : activer DataTable -->
+    <script>
+        $(document).ready(function () {
+            $('#table_resultats').DataTable({
+                language: {
+                    search: "Recherche :",
+                    lengthMenu: "Afficher _MENU_ candidatures",
+                    info: "Page _PAGE_ sur _PAGES_",
+                    paginate: {
+                        first: "Début",
+                        last: "Fin",
+                        next: "Suivant",
+                        previous: "Précédent"
+                    }
+                }
+            });
+        });
+    </script>
+
+    <!-- JS : Chart -->
+    <script>
+        const ctx = document.getElementById('scoreChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ table | map(attribute=0) | list | tojson }},
+                datasets: [{
+                    label: 'Score de Similarité',
+                    data: {{ table | map(attribute=1) | list | tojson }},
+                    backgroundColor: 'rgba(90, 50, 255, 0.6)'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, max: 1 }
+                }
+            }
+        });
+    </script>
+
 </body>
 </html>

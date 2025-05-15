@@ -206,42 +206,46 @@ def extract_text_from_txt(txt_path):
 @login_required
 def analyze(offre_id):
     if current_user.role != 'recruteur':
-        return redirect(url_for('home'))  # Si l'utilisateur n'est pas un recruteur, redirige vers l'accueil
+        return redirect(url_for('home'))
     
     offre = OffreEmploi.query.get_or_404(offre_id)
-    candidats = Candidat.query.filter_by(offre_id=offre_id).all()  # Récupérer les candidats pour cette offre
+    candidats = Candidat.query.filter_by(offre_id=offre_id).all()
     resultats = []
 
     for candidat in candidats:
         cv_text = candidat.cv
-
-
-        # Calculer la similarité entre le texte du CV et la description de l'offre
         emb_obj = model.encode([cv_text])
         emb_ref = model.encode([offre.description])
         score = cosine_similarity(emb_obj, emb_ref).flatten()[0]
         
-        resultats.append((candidat.id, score))  # Ajouter le résultat à la liste
-    # Trier les résultats par similarité
+        resultats.append((candidat.id, score))  # ✅ utiliser ID (int)
+
+    # Trier et convertir en float natif (JSON-safe)
     resultats = sorted(resultats, key=lambda x: x[1], reverse=True)
+    resultats = [(candidat_id, float(score)) for candidat_id, score in resultats]
 
     # Création du graphique
     fig, ax = plt.subplots()
     ax.plot(range(len(resultats)), [x[1] for x in resultats], marker='o', linestyle='-', color='b')
     ax.set_title('Graphique des scores de similarité')
-    ax.set_xlabel('Candidats')
+    ax.set_xlabel('Candidats (ID)')
     ax.set_ylabel('Score de Similarité')
 
-    # Convertir le graphique en image base64
     img_io = io.BytesIO()
     plt.savefig(img_io, format='png')
     img_io.seek(0)
     img_base64 = base64.b64encode(img_io.getvalue()).decode()
 
-    # Calculer la moyenne des scores
-    moyenne_score = sum([x[1] for x in resultats]) / len(resultats) if resultats else 0
+    moyenne_score = sum(x[1] for x in resultats) / len(resultats) if resultats else 0
 
-    return render_template("analyze.html", offre=offre, table=resultats, moyenne_score=moyenne_score, img_base64=img_base64)
+    return render_template(
+        "analyze.html",
+        offre=offre,
+        table=resultats,
+        moyenne_score=moyenne_score,
+        img_base64=img_base64
+    )
+
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
