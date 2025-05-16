@@ -8,22 +8,28 @@
 <body class="bg-light">
     <div class="container mt-5">
         <h1 class="mb-4 text-center">Postuler à l'offre : {{ offre.titre }}</h1>
+
+        <!-- ✅ Le form englobe TOUT, y compris les questions -->
         <form action="/postuler/{{ offre.id }}" method="POST" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="cv" class="form-label">CV</label>
                 <input type="file" class="form-control" id="cv" name="cv" required>
             </div>
-            <button type="submit" class="btn btn-primary">Soumettre ma candidature</button>
-        </form>
-        {% if offre.questions %}
-        <h5 class="mt-4">Questions du recruteur</h5>
-        {% for question in offre.questions %}
-            <div class="mb-3">
-                <label class="form-label">{{ question }}</label>
-                <input type="text" name="reponses[]" class="form-control" required>
+
+            {% if offre.questions %}
+                <h5 class="mt-4">Questions du recruteur</h5>
+                {% for question in offre.questions %}
+                    <div class="mb-3">
+                        <label class="form-label">{{ question }}</label>
+                        <input type="text" name="reponses[]" class="form-control" required>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary px-4">Soumettre ma candidature</button>
             </div>
-        {% endfor %}
-{% endif %}
+        </form>
     </div>
 </body>
 </html>

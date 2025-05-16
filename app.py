@@ -204,5 +204,5 @@ def analyze(offre_id):
     return render_template("analyze.html", offre=offre, table=resultats, moyenne_score=moyenne_score,
                            n_candidatures=len(resultats), img_base64=img_base64, candidats_dict=candidats_dict)
 
-if __name__ == "__main__":
-    app.run(debug=True)
+"""if __name__ == "__main__":
+    app.run(debug=True)"""
