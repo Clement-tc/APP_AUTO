@@ -15,6 +15,15 @@
             </div>
             <button type="submit" class="btn btn-primary">Soumettre ma candidature</button>
         </form>
+        {% if offre.questions %}
+        <h5 class="mt-4">Questions du recruteur</h5>
+        {% for question in offre.questions %}
+            <div class="mb-3">
+                <label class="form-label">{{ question }}</label>
+                <input type="text" name="reponses[]" class="form-control" required>
+            </div>
+        {% endfor %}
+{% endif %}
     </div>
 </body>
 </html>

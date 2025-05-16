@@ -8,32 +8,40 @@
 
 </head>
 <body class="bg-light">
-
-    <!-- ✅ Bandeau de navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg 
+    {% if current_user.is_authenticated and current_user.role == 'candidat' %}
+        navbar-dark" style="background-color: rgb(25, 135, 84);"
+    {% else %}
+        navbar-dark bg-primary
+    {% endif %}">
+    
+    <div class="container-fluid">
+        {% if current_user.is_authenticated %}
+            <a class="navbar-brand" href="/">Bienvenue {{ current_user.role }}</a>
+        {% else %}
             <a class="navbar-brand" href="/">Bienvenue</a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto">
-                    {% if current_user.is_authenticated and current_user.role == 'candidat' %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/mes-candidatures">Mes Candidatures</a>
-                        </li>
-                    {% endif %}
-                    {% if current_user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="/logout">Déconnexion</a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="/login">Se connecter</a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
+        {% endif %}
 
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                {% if current_user.is_authenticated and current_user.role == 'candidat' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/mes-candidatures">Mes Candidatures</a>
+                    </li>
+                {% endif %}
+                {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/logout">Déconnexion</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/login">Se connecter</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
     <!-- 💼 Section principale -->
     <div class="container mt-5">
         <h1 class="page-title">Offres d'Emploi</h1>

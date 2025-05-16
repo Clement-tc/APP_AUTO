@@ -25,8 +25,15 @@
                 <label for="competences" class="form-label">Compétences</label>
                 <input type="text" class="form-control" id="competences" name="competences" required>
             </div>
-            
+            <div id="questionnaire">
+                <label class="form-label">Questions pour le candidat :</label>
+                <div class="mb-2">
+                    <input type="text" name="questions[]" class="form-control" placeholder="Ex: Pourquoi vous ?" />
+                </div>
+            </div>
+            <button type="button" class="btn btn-outline-secondary mb-3" onclick="addQuestion()">+ Ajouter une question</button>
             <button type="submit" class="btn btn-primary">Créer l'offre</button>
+
         </form>
     </div>
 </body>

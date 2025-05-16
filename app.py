@@ -3,6 +3,7 @@ import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from sqlalchemy.dialects.sqlite import JSON
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import matplotlib
@@ -44,6 +45,7 @@ class OffreEmploi(db.Model):
     localisation = db.Column(db.String(100), nullable=False)
     competences = db.Column(db.String(200), nullable=False)
     date_publication = db.Column(db.String(50), nullable=False)
+    questions = db.Column(JSON, nullable=True)
 
 class Candidat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -53,6 +55,7 @@ class Candidat(db.Model):
     offre = db.relationship('OffreEmploi', backref=db.backref('candidats', lazy=True))
     user = db.relationship('User', backref=db.backref('candidatures', lazy=True))
     date_postulation = db.Column(db.String(50), nullable=False)
+    reponses = db.Column(JSON, nullable=True)
 
 def get_cv_text(df):
     return str(df['skills']) + " " + str(df['career_objective'])
@@ -69,24 +72,29 @@ with app.app_context():
         db.session.add_all(offres)
         db.session.commit()
 
-        
-        df = pd.read_csv('resume_data.csv')  # Charger les données depuis le fichier CSV
+        df = pd.read_csv('resume_data.csv')
         for offre in offres:
             candidats_postules = Candidat.query.filter_by(offre_id=offre.id).all()
             if len(candidats_postules) == 0:
-                for _, row in df.sample(n=np.random.randint(1, 10)).iterrows():
-                    cv_text = get_cv_text(row)  # Concaténer 'skills' et 'career_objective'
-                    
-
-                    candidat = Candidat(cv=cv_text, offre_id=offre.id, user_id=_, date_postulation=offre.date_publication)
+                for _, row in df.sample(n=np.random.randint(5, 11)).iterrows():
+                    cv_text = get_cv_text(row)
+                    user = User(username=f"user_{_}_{offre.id}", password="demo", role="candidat")
+                    db.session.add(user)
+                    db.session.commit()
+                    candidat = Candidat(cv=cv_text, offre_id=offre.id, user_id=user.id, date_postulation=offre.date_publication)
                     db.session.add(candidat)
-                    db.session.commit()  # Commiter chaque candidat
-
+                    db.session.commit()
 
 @app.route("/")
 def home():
     offres = OffreEmploi.query.all()
-    return render_template("home.html", offres=offres)
+    image_folder = os.path.join(app.static_folder, 'images')
+    image_files = sorted([
+        f for f in os.listdir(image_folder) 
+        if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))
+    ])
+
+    return render_template("home.html", offres=offres, image_files=image_files)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -119,12 +127,14 @@ def create_offre():
     if current_user.role != 'recruteur':
         return redirect(url_for('home'))
     if request.method == "POST":
+        questions = request.form.getlist('questions[]')
         offre = OffreEmploi(
             titre=request.form['titre'],
             description=request.form['description'],
             localisation=request.form['localisation'],
             competences=request.form['competences'],
-            date_publication=datetime.today().strftime('%Y-%m-%d')
+            date_publication=datetime.today().strftime('%Y-%m-%d'),
+            questions=[q for q in questions if q.strip()]
         )
         db.session.add(offre)
         db.session.commit()
@@ -142,7 +152,9 @@ def postuler(offre_id):
         path = os.path.join(app.config['UPLOAD_FOLDER'], cv_file.filename)
         cv_file.save(path)
         cv_text = extract_text_from_pdf(path)
-        candidat = Candidat(cv=cv_text, offre_id=offre_id, user_id=current_user.id, date_postulation=datetime.today().strftime('%Y-%m-%d'))
+        reponses = request.form.getlist('reponses[]') if 'reponses[]' in request.form else []
+        candidat = Candidat(cv=cv_text, offre_id=offre_id, user_id=current_user.id,
+                            date_postulation=datetime.today().strftime('%Y-%m-%d'), reponses=reponses)
         db.session.add(candidat)
         db.session.commit()
         return redirect(url_for('home'))
@@ -173,6 +185,7 @@ def analyze(offre_id):
     offre = OffreEmploi.query.get_or_404(offre_id)
     candidats = Candidat.query.filter_by(offre_id=offre_id).all()
     resultats = []
+
     for c in candidats:
         score = cosine_similarity(model.encode([c.cv]), model.encode([offre.description])).flatten()[0]
         resultats.append((c.id, float(score)))
@@ -187,6 +200,9 @@ def analyze(offre_id):
     plt.savefig(buf, format='png')
     buf.seek(0)
     img_base64 = base64.b64encode(buf.getvalue()).decode()
-    return render_template("analyze.html", offre=offre, table=resultats, moyenne_score=moyenne_score, img_base64=img_base64)
-"""if __name__ == "__main__":
-    app.run(debug=True)"""
+    candidats_dict = {c.id: c for c in candidats}
+    return render_template("analyze.html", offre=offre, table=resultats, moyenne_score=moyenne_score,
+                           n_candidatures=len(resultats), img_base64=img_base64, candidats_dict=candidats_dict)
+
+if __name__ == "__main__":
+    app.run(debug=True)
