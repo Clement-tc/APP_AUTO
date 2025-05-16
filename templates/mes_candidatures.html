@@ -8,7 +8,12 @@
 <body class="bg-light">
 
     <!-- Bandeau de navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg 
+    {% if current_user.is_authenticated and current_user.role == 'candidat' %}
+        navbar-dark" style="background-color: rgb(25, 135, 84);"
+    {% else %}
+        navbar-dark bg-primary
+    {% endif %}">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">Bienvenue</a>
             <div class="collapse navbar-collapse">

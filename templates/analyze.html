@@ -19,22 +19,34 @@
         <!-- 📊 Score moyen -->
         <div class="alert alert-info text-center">
             Score moyen de similarité : <strong>{{ '%.2f'|format(moyenne_score) }}</strong>
+            <span class="ms-4">Nombre de candidatures : <strong>{{ n_candidatures|round }}</strong></span>
         </div>
 
         <!-- 🧮 Tableau interactif -->
         <table id="table_resultats" class="table table-striped table-bordered">
-            <thead class="table-primary">
+            <thead>
                 <tr>
-                    <th>id</th>
-                    <th>Score de similarité</th>
+                    <th>ID</th>
+                    <th>Score</th>
+                    {% if offre.questions %}
+                        {% for question in offre.questions %}
+                            <th>{{ question }}</th>
+                        {% endfor %}
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
-                {% for nom, score in table %}
-                <tr>
-                    <td>{{ nom }}</td>
-                    <td>{{ '%.2f'|format(score) }}</td>
-                </tr>
+                {% for cid, score in table %}
+                    {% set cand = candidats_dict[cid] %}
+                    <tr>
+                        <td>{{ cid }}</td>
+                        <td>{{ '%.2f'|format(score) }}</td>
+                        {% if offre.questions %}
+                            {% for i in range(offre.questions | length) %}
+                                <td>{{ cand.reponses[i] if cand.reponses and i < cand.reponses | length else '' }}</td>
+                            {% endfor %}
+                        {% endif %}
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
