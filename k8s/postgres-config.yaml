@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: offreapi
+  labels:
+    app: postgres
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi  # Demande de stockage pour PostgreSQL
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: offreapi
+type: Opaque
+stringData:
+  POSTGRES_USER: elcer
+  POSTGRES_PASSWORD: clidshd
+  POSTGRES_DB: prd

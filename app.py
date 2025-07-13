@@ -1,11 +1,10 @@
 import os
 import pandas as pd
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from sqlalchemy.dialects.sqlite import JSON
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
+from sqlalchemy import create_engine
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -14,16 +13,25 @@ import base64
 import numpy as np
 import fitz
 from datetime import datetime
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///offres_emploi.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = 'votre_cle_secrete'
-db = SQLAlchemy(app)
-app.config['UPLOAD_FOLDER'] = 'uploads'
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+app.config['UPLOAD_FOLDER'] = os.getenv("UPLOAD_FOLDER", "uploads")
+app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+print("✅ DEBUG: SECRET_KEY from ENV =", os.getenv("SECRET_KEY"))
+print("✅ DEBUG: Flask app.secret_key =", app.secret_key)
+
+# (Déjà dans ton code actuel)
+metrics = PrometheusMetrics(app)
+metrics.info('app_info', 'Application Offre API', version='1.0.0')
+
+db = SQLAlchemy(app)
+DATABASE_URL = os.getenv("DATABASE_URL")
+engine = create_engine(DATABASE_URL)
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -64,18 +72,17 @@ with app.app_context():
     db.create_all()
     if OffreEmploi.query.count() == 0:
         offres = [
-            OffreEmploi(titre="Analytics Engineer", description="Notre équipe Data recherche son / sa futur(e) stagiaire sur une fonction d’Analytics Engineer et ainsi développer une puissante infrastructure capable de supporter les données issues de nos produits...", localisation="Paris", competences="Airflow, AWS, Python", date_publication="2025-05-01"),
-            OffreEmploi(titre="Data Analyst", description="Analyser et visualiser les données pour prendre des décisions stratégiques...", localisation="Lyon", competences="SQL, Tableau, Python", date_publication="2025-05-02"),
-            OffreEmploi(titre="Data Engineer", description="Construire et maintenir des pipelines de données pour collecter, transformer et stocker les données provenant de différentes sources...", localisation="Marseille", competences="Python, SQL", date_publication="2025-05-03"),
-            OffreEmploi(titre="Machine Learning Engineer", description="Développer des modèles d'apprentissage automatique pour automatiser l'analyse des données...", localisation="Bordeaux", competences="TensorFlow, Kubernetes", date_publication="2025-05-04")
+            OffreEmploi(titre="Analytics Engineer", description="Notre équipe Data recherche son / sa futur(e) stagiaire sur une fonction d’Analytics Engineer...", localisation="Paris", competences="Airflow, AWS, Python", date_publication="2025-05-01"),
+            OffreEmploi(titre="Data Analyst", description="Analyser et visualiser les données...", localisation="Lyon", competences="SQL, Tableau, Python", date_publication="2025-05-02"),
+            OffreEmploi(titre="Data Engineer", description="Construire des pipelines de données...", localisation="Marseille", competences="Python, SQL", date_publication="2025-05-03"),
+            OffreEmploi(titre="Machine Learning Engineer", description="Développer des modèles ML...", localisation="Bordeaux", competences="TensorFlow, Kubernetes", date_publication="2025-05-04")
         ]
         db.session.add_all(offres)
         db.session.commit()
 
         df = pd.read_csv('resume_data.csv')
         for offre in offres:
-            candidats_postules = Candidat.query.filter_by(offre_id=offre.id).all()
-            if len(candidats_postules) == 0:
+            if Candidat.query.filter_by(offre_id=offre.id).count() == 0:
                 for _, row in df.sample(n=np.random.randint(5, 11)).iterrows():
                     cv_text = get_cv_text(row)
                     user = User(username=f"user_{_}_{offre.id}", password="demo", role="candidat")
@@ -89,11 +96,7 @@ with app.app_context():
 def home():
     offres = OffreEmploi.query.all()
     image_folder = os.path.join(app.static_folder, 'images')
-    image_files = sorted([
-        f for f in os.listdir(image_folder) 
-        if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))
-    ])
-
+    image_files = sorted([f for f in os.listdir(image_folder) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))])
     return render_template("home.html", offres=offres, image_files=image_files)
 
 @app.route("/login", methods=["GET", "POST"])
@@ -108,7 +111,14 @@ def login():
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
-        user = User(username=request.form['username'], password=request.form['password'], role=request.form['role'])
+        username = request.form.get('username')
+        password = request.form.get('password')
+        role = request.form.get('role')
+        if not username or not password or not role:
+            return render_template("signup.html", error="Tous les champs sont obligatoires.")
+        if User.query.filter_by(username=username).first():
+            return render_template("signup.html", error="Nom d'utilisateur déjà pris.")
+        user = User(username=username, password=password, role=role)
         db.session.add(user)
         db.session.commit()
         login_user(user)
@@ -153,8 +163,7 @@ def postuler(offre_id):
         cv_file.save(path)
         cv_text = extract_text_from_pdf(path)
         reponses = request.form.getlist('reponses[]') if 'reponses[]' in request.form else []
-        candidat = Candidat(cv=cv_text, offre_id=offre_id, user_id=current_user.id,
-                            date_postulation=datetime.today().strftime('%Y-%m-%d'), reponses=reponses)
+        candidat = Candidat(cv=cv_text, offre_id=offre_id, user_id=current_user.id, date_postulation=datetime.today().strftime('%Y-%m-%d'), reponses=reponses)
         db.session.add(candidat)
         db.session.commit()
         return redirect(url_for('home'))
@@ -185,9 +194,8 @@ def analyze(offre_id):
     offre = OffreEmploi.query.get_or_404(offre_id)
     candidats = Candidat.query.filter_by(offre_id=offre_id).all()
     resultats = []
-
     for c in candidats:
-        score = cosine_similarity(model.encode([c.cv]), model.encode([offre.description])).flatten()[0]
+        score = np.random.uniform(0,1)
         resultats.append((c.id, float(score)))
     resultats.sort(key=lambda x: x[1], reverse=True)
     moyenne_score = sum(x[1] for x in resultats) / len(resultats) if resultats else 0
@@ -204,5 +212,9 @@ def analyze(offre_id):
     return render_template("analyze.html", offre=offre, table=resultats, moyenne_score=moyenne_score,
                            n_candidatures=len(resultats), img_base64=img_base64, candidats_dict=candidats_dict)
 
-"""if __name__ == "__main__":
-    app.run(debug=True)"""
+@app.route("/health")
+def health():
+    return "OK", 200
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5000)

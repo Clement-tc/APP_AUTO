@@ -1,0 +1,134 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: offre-api
+  namespace: offreapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: offre-api
+  template:
+    metadata:
+      labels:
+        app: offre-api
+        cluster: minikube
+        namespace: offreapi
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "5000"
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: nicolaka/netshoot
+          command:
+            - /bin/sh
+            - -c
+            - |
+              until nc -z postgres 5432; do
+                echo "⏳ waiting for postgres...";
+                sleep 2;
+              done
+              echo "✅ Postgres is up"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+
+      containers:
+        - name: offre-api
+          image: elcer/offre-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: offre-api-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: offre-api-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: offre-api-secret
+                  key: POSTGRES_DB
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: offre-api-secret
+                  key: POSTGRES_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: offre-api-secret
+                  key: POSTGRES_PORT
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: offre-api-secret
+                  key: DATABASE_URL
+            - name: UPLOAD_FOLDER
+              valueFrom:
+                secretKeyRef:
+                  name: offre-api-secret
+                  key: UPLOAD_FOLDER
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: offre-api-secret
+                  key: SECRET_KEY
+
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1.5Gi"
+
+          volumeMounts:
+            - name: uploads-volume
+              mountPath: /app/uploads
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+      volumes:
+        - name: uploads-volume
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: offre-api
+  namespace: offreapi
+spec:
+  selector:
+    app: offre-api
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+      nodePort: 30080
+  type: NodePort

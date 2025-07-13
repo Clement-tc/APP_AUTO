@@ -1,10 +1,10 @@
 flask
 gunicorn
-sentence-transformers
 PyMuPDF
-scikit-learn
-torch
 numpy<2.0
 flask_login
 matplotlib
 flask_sqlalchemy
+pandas
+psycopg2-binary
+prometheus_flask_exporter
