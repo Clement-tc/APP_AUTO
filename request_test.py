@@ -5,7 +5,7 @@ import asyncio
 import aiohttp
 import random
 
-URL = "http://localhost:56190/"  # à adapter si besoin
+URL = "http://localhost:55011/"  # à adapter si besoin
 
 # Requête asynchrone individuelle
 async def send_request(session, idx, delay):
@@ -28,4 +28,4 @@ async def main(n_requests=20, min_delay=0.1, max_delay=5.0):
         await asyncio.gather(*tasks)
 
 if __name__ == "__main__":
-    asyncio.run(main(n_requests=10_000, min_delay=1, max_delay=160.5))
+    asyncio.run(main(n_requests=10000, min_delay=1, max_delay=10000.5))

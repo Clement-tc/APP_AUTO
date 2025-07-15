@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: offre-api-monitor
+  namespace: monitoring
+  labels:
+    release: kube-prometheus
+spec:
+  selector:
+    matchLabels:
+      app: offre-api
+  namespaceSelector:
+    matchNames:
+      - offreapi
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s

@@ -7,4 +7,4 @@ matplotlib
 flask_sqlalchemy
 pandas
 psycopg2-binary
-prometheus_flask_exporter
+prometheus-flask-exporter

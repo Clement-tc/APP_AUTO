@@ -1,9 +1,6 @@
 FROM python:3.11-slim
 
-# Port exposé par Flask
-EXPOSE 5000
-
-# Installer quelques dépendances système utiles (notamment pour fitz / matplotlib)
+# Installer dépendances système nécessaires
 RUN apt-get update && apt-get install -y \
     gcc \
     libffi-dev \
@@ -20,8 +17,11 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copier le code source (app.py + modules + modèles)
+# Copier tout le code de l'app
 COPY . .
 
-# Lancer l'application Flask
-CMD ["python", "app.py"]
+# Exposer le port de Flask/Gunicorn
+EXPOSE 5000
+
+# Lancer avec Gunicorn (wsgi:app = fichier wsgi.py, variable app)
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "wsgi:app"]

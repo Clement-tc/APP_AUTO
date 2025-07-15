@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: offre-api
   namespace: offreapi
+  labels:
+    app: offre-api
 spec:
   replicas: 1
   selector:
@@ -12,8 +14,6 @@ spec:
     metadata:
       labels:
         app: offre-api
-        cluster: minikube
-        namespace: offreapi
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: "/metrics"
@@ -21,72 +21,26 @@ spec:
     spec:
       initContainers:
         - name: wait-for-postgres
-          image: nicolaka/netshoot
+          image: busybox:1.35
           command:
             - /bin/sh
             - -c
             - |
-              until nc -z postgres 5432; do
-                echo "⏳ waiting for postgres...";
-                sleep 2;
-              done
-              echo "✅ Postgres is up"
-          resources:
-            requests:
-              cpu: "100m"
-              memory: "128Mi"
-            limits:
-              cpu: "200m"
-              memory: "256Mi"
+              echo "🕓 Sleep 15s en attendant Postgres"; sleep 15
 
       containers:
         - name: offre-api
           image: elcer/offre-api:latest
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 5000
+            - name: http                  # 🟢 nom requis pour Prometheus
+              containerPort: 5000
+          envFrom:
+            - secretRef:
+                name: offre-api-secret
           env:
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: offre-api-secret
-                  key: POSTGRES_USER
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: offre-api-secret
-                  key: POSTGRES_PASSWORD
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: offre-api-secret
-                  key: POSTGRES_DB
-            - name: POSTGRES_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: offre-api-secret
-                  key: POSTGRES_HOST
-            - name: POSTGRES_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: offre-api-secret
-                  key: POSTGRES_PORT
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: offre-api-secret
-                  key: DATABASE_URL
-            - name: UPLOAD_FOLDER
-              valueFrom:
-                secretKeyRef:
-                  name: offre-api-secret
-                  key: UPLOAD_FOLDER
-            - name: SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: offre-api-secret
-                  key: SECRET_KEY
-
+            - name: PROMETHEUS_MULTIPROC_DIR
+              value: /tmp
           resources:
             requests:
               cpu: "500m"
@@ -94,41 +48,33 @@ spec:
             limits:
               cpu: "1"
               memory: "1.5Gi"
-
           volumeMounts:
             - name: uploads-volume
               mountPath: /app/uploads
-
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 5000
-            initialDelaySeconds: 10
-            periodSeconds: 10
-
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: 5000
-            initialDelaySeconds: 5
-            periodSeconds: 5
+            - name: prometheus-metrics
+              mountPath: /tmp
 
       volumes:
         - name: uploads-volume
           emptyDir: {}
+        - name: prometheus-metrics
+          emptyDir: {}
 
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
   name: offre-api
   namespace: offreapi
+  labels:
+    app: offre-api
 spec:
   selector:
     app: offre-api
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 5000
       targetPort: 5000
       nodePort: 30080
-  type: NodePort

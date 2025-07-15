@@ -1,0 +1,114 @@
+{
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "type": "dashboard",
+          "name": "Annotations & Alerts",
+          "enable": true
+        }
+      ]
+    },
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 0,
+    "panels": [
+      {
+        "title": "App Version",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "app_info{job=\"offre-api\"}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "red", "value": 1 }
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "orientation": "horizontal",
+          "textMode": "value"
+        },
+        "gridPos": { "x": 0, "y": 0, "w": 4, "h": 3 }
+      },
+      {
+        "title": "Total HTTP Requests",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(flask_http_request_total{job=\"offre-api\"})",
+            "refId": "A"
+          }
+        ],
+        "gridPos": { "x": 4, "y": 0, "w": 4, "h": 3 }
+      },
+      {
+        "title": "HTTP Error Rate (4xx + 5xx)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(rate(flask_http_request_total{job=\"offre-api\",status=~\"4..|5..\"}[5m])) / sum(rate(flask_http_request_total{job=\"offre-api\"}[5m]))",
+            "refId": "A"
+          }
+        ],
+        "gridPos": { "x": 8, "y": 0, "w": 4, "h": 3 }
+      },
+      {
+        "title": "Latency P95 (s)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(flask_http_request_duration_seconds_bucket{job=\"offre-api\"}[5m])) by (le))",
+            "refId": "A"
+          }
+        ],
+        "gridPos": { "x": 0, "y": 3, "w": 6, "h": 3 }
+      },
+      {
+        "title": "Requests by Status Code",
+        "type": "barchart",
+        "targets": [
+          {
+            "expr": "sum by (status) (flask_http_request_total{job=\"offre-api\"})",
+            "refId": "A"
+          }
+        ],
+        "gridPos": { "x": 6, "y": 3, "w": 6, "h": 6 }
+      },
+      {
+        "title": "Requests per Method",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum by (method) (flask_http_request_total{job=\"offre-api\"})",
+            "refId": "A"
+          }
+        ],
+        "gridPos": { "x": 0, "y": 6, "w": 6, "h": 6 }
+      }
+    ],
+    "schemaVersion": 36,
+    "version": 1,
+    "title": "offre-api Dashboard",
+    "refresh": "10s",
+    "time": {
+      "from": "now-30m",
+      "to": "now"
+    }
+  }
+  

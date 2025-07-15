@@ -16,6 +16,10 @@ from datetime import datetime
 from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
+
+metrics = PrometheusMetrics(app, path="/metrics")
+metrics.info('app_info', 'Application Offre API', version='1.0.0')
+
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.getenv("UPLOAD_FOLDER", "uploads")
@@ -24,9 +28,6 @@ app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
 print("✅ DEBUG: SECRET_KEY from ENV =", os.getenv("SECRET_KEY"))
 print("✅ DEBUG: Flask app.secret_key =", app.secret_key)
 
-# (Déjà dans ton code actuel)
-metrics = PrometheusMetrics(app)
-metrics.info('app_info', 'Application Offre API', version='1.0.0')
 
 db = SQLAlchemy(app)
 DATABASE_URL = os.getenv("DATABASE_URL")
