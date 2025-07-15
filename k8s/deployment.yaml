@@ -70,6 +70,7 @@ metadata:
   labels:
     app: offre-api
 spec:
+  type: NodePort     
   selector:
     app: offre-api
   ports:
