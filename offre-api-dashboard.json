@@ -1,114 +1,138 @@
 {
-    "annotations": {
-      "list": [
-        {
-          "builtIn": 1,
-          "type": "dashboard",
-          "name": "Annotations & Alerts",
-          "enable": true
-        }
-      ]
-    },
-    "editable": true,
-    "gnetId": null,
-    "graphTooltip": 0,
+    "id": null,
+    "title": "Offre API - Pod Detail",
+    "schemaVersion": 38,
+    "version": 1,
+    "refresh": "10s",
+    "timezone": "browser",
     "panels": [
       {
-        "title": "App Version",
-        "type": "stat",
+        "type": "timeseries",
+        "title": "⏱️ Delay HTTP (flask_http_request_duration_seconds)",
         "targets": [
           {
-            "expr": "app_info{job=\"offre-api\"}",
+            "expr": "rate(flask_http_request_duration_seconds_sum{pod=\"offre-api-7b899d8644-c549l\"}[1m]) / rate(flask_http_request_duration_seconds_count{pod=\"offre-api-7b899d8644-c549l\"}[1m])",
+            "legendFormat": "Latency avg",
             "refId": "A"
           }
         ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "short",
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                { "color": "green", "value": null },
-                { "color": "red", "value": 1 }
-              ]
-            }
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 0, "w": 24, "h": 6 }
+      },
+      {
+        "type": "timeseries",
+        "title": "🔥 CPU Usage - offre-api-7b899d8644-c549l",
+        "targets": [
+          {
+            "expr": "rate(container_cpu_usage_seconds_total{pod=\"offre-api-7b899d8644-c549l\"}[5m])",
+            "legendFormat": "CPU",
+            "refId": "B"
           }
-        },
-        "options": {
-          "reduceOptions": {
-            "calcs": ["lastNotNull"],
-            "fields": "",
-            "values": false
+        ],
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 6, "w": 12, "h": 6 }
+      },
+      {
+        "type": "timeseries",
+        "title": "💾 Memory Usage - offre-api-7b899d8644-c549l",
+        "targets": [
+          {
+            "expr": "container_memory_usage_bytes{pod=\"offre-api-7b899d8644-c549l\"}",
+            "legendFormat": "Memory",
+            "refId": "C"
+          }
+        ],
+        "datasource": "Prometheus",
+        "gridPos": { "x": 12, "y": 6, "w": 12, "h": 6 }
+      },
+      {
+        "type": "timeseries",
+        "title": "📊 CPU Requests vs Limits - offre-api-7b899d8644-c549l",
+        "targets": [
+          {
+            "expr": "kube_pod_container_resource_requests_cpu_cores{pod=\"offre-api-7b899d8644-c549l\"}",
+            "legendFormat": "Request CPU",
+            "refId": "D"
           },
-          "orientation": "horizontal",
-          "textMode": "value"
-        },
-        "gridPos": { "x": 0, "y": 0, "w": 4, "h": 3 }
-      },
-      {
-        "title": "Total HTTP Requests",
-        "type": "stat",
-        "targets": [
           {
-            "expr": "sum(flask_http_request_total{job=\"offre-api\"})",
-            "refId": "A"
+            "expr": "kube_pod_container_resource_limits_cpu_cores{pod=\"offre-api-7b899d8644-c549l\"}",
+            "legendFormat": "Limit CPU",
+            "refId": "E"
           }
         ],
-        "gridPos": { "x": 4, "y": 0, "w": 4, "h": 3 }
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 12, "w": 12, "h": 6 }
       },
       {
-        "title": "HTTP Error Rate (4xx + 5xx)",
-        "type": "stat",
+        "type": "timeseries",
+        "title": "📊 Memory Requests vs Limits - offre-api-7b899d8644-c549l",
         "targets": [
           {
-            "expr": "sum(rate(flask_http_request_total{job=\"offre-api\",status=~\"4..|5..\"}[5m])) / sum(rate(flask_http_request_total{job=\"offre-api\"}[5m]))",
-            "refId": "A"
+            "expr": "kube_pod_container_resource_requests_memory_bytes{pod=\"offre-api-7b899d8644-c549l\"}",
+            "legendFormat": "Request RAM",
+            "refId": "F"
+          },
+          {
+            "expr": "kube_pod_container_resource_limits_memory_bytes{pod=\"offre-api-7b899d8644-c549l\"}",
+            "legendFormat": "Limit RAM",
+            "refId": "G"
           }
         ],
-        "gridPos": { "x": 8, "y": 0, "w": 4, "h": 3 }
+        "datasource": "Prometheus",
+        "gridPos": { "x": 12, "y": 12, "w": 12, "h": 6 }
       },
       {
-        "title": "Latency P95 (s)",
-        "type": "stat",
+        "type": "timeseries",
+        "title": "🐘 CPU PostgreSQL",
         "targets": [
           {
-            "expr": "histogram_quantile(0.95, sum(rate(flask_http_request_duration_seconds_bucket{job=\"offre-api\"}[5m])) by (le))",
-            "refId": "A"
+            "expr": "rate(container_cpu_usage_seconds_total{pod=~\"postgres.*\"}[5m])",
+            "legendFormat": "{{pod}}",
+            "refId": "H"
           }
         ],
-        "gridPos": { "x": 0, "y": 3, "w": 6, "h": 3 }
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 18, "w": 12, "h": 6 }
       },
       {
-        "title": "Requests by Status Code",
-        "type": "barchart",
+        "type": "timeseries",
+        "title": "🐘 Memory PostgreSQL",
         "targets": [
           {
-            "expr": "sum by (status) (flask_http_request_total{job=\"offre-api\"})",
-            "refId": "A"
+            "expr": "container_memory_usage_bytes{pod=~\"postgres.*\"}",
+            "legendFormat": "{{pod}}",
+            "refId": "I"
           }
         ],
-        "gridPos": { "x": 6, "y": 3, "w": 6, "h": 6 }
+        "datasource": "Prometheus",
+        "gridPos": { "x": 12, "y": 18, "w": 12, "h": 6 }
       },
       {
-        "title": "Requests per Method",
-        "type": "piechart",
+        "type": "timeseries",
+        "title": "🧠 CPU pgAdmin",
         "targets": [
           {
-            "expr": "sum by (method) (flask_http_request_total{job=\"offre-api\"})",
-            "refId": "A"
+            "expr": "rate(container_cpu_usage_seconds_total{pod=~\"pgadmin.*\"}[5m])",
+            "legendFormat": "{{pod}}",
+            "refId": "J"
           }
         ],
-        "gridPos": { "x": 0, "y": 6, "w": 6, "h": 6 }
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 24, "w": 12, "h": 6 }
+      },
+      {
+        "type": "timeseries",
+        "title": "🧠 Memory pgAdmin",
+        "targets": [
+          {
+            "expr": "container_memory_usage_bytes{pod=~\"pgadmin.*\"}",
+            "legendFormat": "{{pod}}",
+            "refId": "K"
+          }
+        ],
+        "datasource": "Prometheus",
+        "gridPos": { "x": 12, "y": 24, "w": 12, "h": 6 }
       }
-    ],
-    "schemaVersion": 36,
-    "version": 1,
-    "title": "offre-api Dashboard",
-    "refresh": "10s",
-    "time": {
-      "from": "now-30m",
-      "to": "now"
-    }
+    ]
   }
   
