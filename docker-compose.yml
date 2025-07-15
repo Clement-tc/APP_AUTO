@@ -28,7 +28,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: elcer/offre-api:latest  # ✅ image tag explicite
+    image: offre-api:latest  
     container_name: offre_api
     restart: always
     env_file:
