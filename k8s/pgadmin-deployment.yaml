@@ -30,7 +30,7 @@ metadata:
   name: pgadmin
   namespace: offreapi
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: pgadmin
   ports:

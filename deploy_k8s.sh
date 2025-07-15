@@ -4,7 +4,7 @@ set -e
 
 # === PARAMÈTRES ===
 NAMESPACE="offreapi"
-BASE_IMAGE_NAME="elcer/offre-api"
+BASE_IMAGE_NAME="offre-api"
 TAG="v1-$(date +%s)"
 IMAGE_NAME="$BASE_IMAGE_NAME:$TAG"
 DEPLOYMENT_FILE_ORIG="k8s/deployment.yaml"
@@ -30,10 +30,8 @@ docker context use default > /dev/null
 
 # === BUILD & PUSH IMAGE ===
 echo "🔨 Build image Docker : $IMAGE_NAME"
+eval $(minikube docker-env)
 docker build -t "$IMAGE_NAME" .
-
-echo "☁️ Push image sur Docker Hub : $IMAGE_NAME"
-docker push "$IMAGE_NAME"
 
 # === CLEAN NAMESPACE & RECRÉATION ===
 echo "🔥 Nettoyage namespace $NAMESPACE..."

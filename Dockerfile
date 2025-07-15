@@ -25,3 +25,5 @@ EXPOSE 5000
 
 # Lancer avec Gunicorn (wsgi:app = fichier wsgi.py, variable app)
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "wsgi:app"]
+
+
