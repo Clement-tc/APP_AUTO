@@ -8,10 +8,23 @@
     "panels": [
       {
         "type": "timeseries",
+        "title": "📈 Nombre de requêtes HTTP - offre-api",
+        "targets": [
+          {
+            "expr": "sum(increase(flask_http_request_total{pod=~\"offre-api.*\"}[1m]))",
+            "legendFormat": "Req/min",
+            "refId": "L"
+          }
+        ],
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 30, "w": 24, "h": 6 }
+      },
+      {
+        "type": "timeseries",
         "title": "⏱️ Delay HTTP (flask_http_request_duration_seconds)",
         "targets": [
           {
-            "expr": "rate(flask_http_request_duration_seconds_sum{pod=\"offre-api-7b899d8644-c549l\"}[1m]) / rate(flask_http_request_duration_seconds_count{pod=\"offre-api-7b899d8644-c549l\"}[1m])",
+            "expr": "rate(flask_http_request_duration_seconds_sum{pod=~\"offre-api.*\"}[1m]) / rate(flask_http_request_duration_seconds_count{pod=~\"offre-api.*\"}[1m])",
             "legendFormat": "Latency avg",
             "refId": "A"
           }
@@ -21,10 +34,10 @@
       },
       {
         "type": "timeseries",
-        "title": "🔥 CPU Usage - offre-api-7b899d8644-c549l",
+        "title": "🔥 CPU Usage - offre-api",
         "targets": [
           {
-            "expr": "rate(container_cpu_usage_seconds_total{pod=\"offre-api-7b899d8644-c549l\"}[5m])",
+            "expr": "rate(container_cpu_usage_seconds_total{pod=~\"offre-api.*\"}[5m])",
             "legendFormat": "CPU",
             "refId": "B"
           }
@@ -34,10 +47,10 @@
       },
       {
         "type": "timeseries",
-        "title": "💾 Memory Usage - offre-api-7b899d8644-c549l",
+        "title": "💾 Memory Usage - offre-api",
         "targets": [
           {
-            "expr": "container_memory_usage_bytes{pod=\"offre-api-7b899d8644-c549l\"}",
+            "expr": "container_memory_usage_bytes{pod=~\"offre-api.*\"}",
             "legendFormat": "Memory",
             "refId": "C"
           }
@@ -47,15 +60,15 @@
       },
       {
         "type": "timeseries",
-        "title": "📊 CPU Requests vs Limits - offre-api-7b899d8644-c549l",
+        "title": "📊 CPU Requests vs Limits - offre-api",
         "targets": [
           {
-            "expr": "kube_pod_container_resource_requests_cpu_cores{pod=\"offre-api-7b899d8644-c549l\"}",
+            "expr": "kube_pod_container_resource_requests_cpu_cores{pod=~\"offre-api.*\"}",
             "legendFormat": "Request CPU",
             "refId": "D"
           },
           {
-            "expr": "kube_pod_container_resource_limits_cpu_cores{pod=\"offre-api-7b899d8644-c549l\"}",
+            "expr": "kube_pod_container_resource_limits_cpu_cores{pod=~\"offre-api.*\"}",
             "legendFormat": "Limit CPU",
             "refId": "E"
           }
@@ -65,15 +78,15 @@
       },
       {
         "type": "timeseries",
-        "title": "📊 Memory Requests vs Limits - offre-api-7b899d8644-c549l",
+        "title": "📊 Memory Requests vs Limits - offre-api",
         "targets": [
           {
-            "expr": "kube_pod_container_resource_requests_memory_bytes{pod=\"offre-api-7b899d8644-c549l\"}",
+            "expr": "kube_pod_container_resource_requests_memory_bytes{pod=~\"offre-api.*\"}",
             "legendFormat": "Request RAM",
             "refId": "F"
           },
           {
-            "expr": "kube_pod_container_resource_limits_memory_bytes{pod=\"offre-api-7b899d8644-c549l\"}",
+            "expr": "kube_pod_container_resource_limits_memory_bytes{pod=~\"offre-api.*\"}",
             "legendFormat": "Limit RAM",
             "refId": "G"
           }
