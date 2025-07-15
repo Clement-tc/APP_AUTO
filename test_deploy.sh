@@ -35,7 +35,7 @@ kubectl apply -f k8s/postgres-service.yaml -n offreapi
 kubectl wait --for=condition=ready pod -l app=postgres -n offreapi --timeout=90s || true
 
 kubectl apply -f k8s/pgadmin-deployment.yaml -n offreapi
-kubectl apply -f k8s/service-monitoring.yaml -n offreapi
+kubectl apply -f k8s/service-monitoring.yaml -n monitoring
 
 kubectl apply -f k8s/deployment.yaml -n offreapi
 kubectl get pods -n offreapi 
